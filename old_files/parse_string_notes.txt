@@ -1,0 +1,25 @@
+>>> fileHandle = open('./captures/text_rx.txt')
+>>> lineList = fileHandle.readlines()
+>>> fileHandle.close()
+>>> print lineList
+[' 31.4  15 0.47  890  0  1.0 CQ K3CPK FM19                        \n', ' 11.8  16-0.32  819  0  0.8 CQ K3CPK FM19                        \n', ' 12.8  15-0.51  805  0  1.0 CQ K3CPK FM19                        \n', ' 18.1  16 0.26  793  0  1.0 CQ K3CPK FM19                        \n']
+>>> print lineList[-1]
+ 18.1  16 0.26  793  0  1.0 CQ K3CPK FM19                        
+
+>>> lineList[-1].split(" ")
+['', '18.1', '', '16', '0.26', '', '793', '', '0', '', '1.0', 'CQ', 'K3CPK', 'FM19', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '\n']
+>>> collapsedstring = ' '.join(lineList[-1].split())
+>>> print collapsedstring.split(' ')
+['18.1', '16', '0.26', '793', '0', '1.0', 'CQ', 'K3CPK', 'FM19']
+>>> print collapsedstring.split(' ')[7]
+K3CPK
+>>> print collapsedstring.split(' ')[-1]
+FM19
+
+"K3CPK W3UAS FM19"
+
+fileHandle = open('./captures/text_rx.txt')
+lineList = fileHandle.readlines()
+fileHandle.close()
+collapsedstring = ' '.join(lineList[-1].split())
+print collapsedstring.split(' ')[7]

@@ -1,0 +1,4 @@
+./captures/*
+./old_files
+*.wav
+*.pyc

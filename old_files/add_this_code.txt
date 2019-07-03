@@ -1,0 +1,8 @@
+now = time.localtime().tm_sec
+    if now < 30:
+        print("Waiting for 30 second mark")
+        time.sleep(29-now)
+    else:
+        print("Waiting for the top of the minute...")
+        time.sleep(59 - now)
+    print("Receiving...")
