@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-#import time
+import time
 import threading
 import subprocess
 import os
@@ -25,6 +25,7 @@ def tx():
     while True:
         print("Starting TX")
         os.system('python ft8_tx.py')# 2> /dev/null')
+        time.sleep(8)
         print("Exiting TX")
 
 def rx():
@@ -32,6 +33,7 @@ def rx():
         print("Starting RX")
         os.system('python ft8_rx.py')# 2> /dev/null')
         parse_rx()
+        time.sleep(8)
         print("Exiting RX")
 
 
