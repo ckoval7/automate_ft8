@@ -57,6 +57,11 @@ class ssb_rx_rec(gr.top_block):
         try: rx_ppm = self._rx_ppm_config.getfloat('rx', 'rx_sdr_ppm')
         except: rx_ppm = 0
         self.rx_ppm = rx_ppm
+        self._rx_dev_config = ConfigParser.ConfigParser()
+        self._rx_dev_config.read(file_name)
+        try: rx_dev = self._rx_dev_config.get('rx', 'rx_device_string')
+        except: rx_dev = 'rtl=0'
+        self.rx_dev = rx_dev
         self._rf_gain_config = ConfigParser.ConfigParser()
         self._rf_gain_config.read(file_name)
         try: rf_gain = self._rf_gain_config.getfloat('rx', 'rx_rf_gain')
@@ -101,7 +106,7 @@ class ssb_rx_rec(gr.top_block):
                 taps=None,
                 fractional_bw=None,
         )
-        self.osmosdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + 'rtl=0' )
+        self.osmosdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + rx_dev )
         self.osmosdr_source_0.set_sample_rate(rf_samp_rate)
         self.osmosdr_source_0.set_center_freq(freq-offset, 0)
         self.osmosdr_source_0.set_freq_corr(rx_ppm, 0)
@@ -151,6 +156,12 @@ class ssb_rx_rec(gr.top_block):
         	self._rx_ppm_config.add_section('rx')
         self._rx_ppm_config.set('rx', 'rx_sdr_ppm', str(None))
         self._rx_ppm_config.write(open(self.file_name, 'w'))
+        self._rx_dev_config = ConfigParser.ConfigParser()
+        self._rx_dev_config.read(self.file_name)
+        if not self._rx_dev_config.has_section('rx'):
+        	self._rx_dev_config.add_section('rx')
+        self._rx_dev_config.set('rx', 'rx_device_string', str(None))
+        self._rx_dev_config.write(open(self.file_name, 'w'))
         self._rf_samp_rate_config = ConfigParser.ConfigParser()
         self._rf_samp_rate_config.read(self.file_name)
         if not self._rf_samp_rate_config.has_section('rx'):
@@ -235,6 +246,12 @@ class ssb_rx_rec(gr.top_block):
     def set_rx_ppm(self, rx_ppm):
         self.rx_ppm = rx_ppm
         self.osmosdr_source_0.set_freq_corr(self.rx_ppm, 0)
+
+    def get_rx_dev(self):
+        return self.rx_dev
+
+    def set_rx_dev(self, rx_dev):
+        self.rx_dev = rx_dev
 
     def get_rf_gain(self):
         return self.rf_gain
@@ -335,6 +352,7 @@ def main(top_block_cls=ssb_rx_rec, options=None):
     time.sleep(14)
     tb.stop()
     tb.wait()
+
 
 if __name__ == '__main__':
     main()

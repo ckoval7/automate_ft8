@@ -3,4 +3,5 @@ captures/*
 old_files/
 *.wav
 *.pyc
+*.bak
 !captures/.gitkeep
