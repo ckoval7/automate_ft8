@@ -19,7 +19,12 @@ from optparse import OptionParser
 import ConfigParser
 import osmosdr
 import time
+import sys
 
+try:
+    cycle = sys.argv[1]
+except:
+    cycle = 'even'
 
 class usb_tx_bpf(gr.top_block):
 
@@ -349,21 +354,35 @@ class usb_tx_bpf(gr.top_block):
         self.audio_gain = audio_gain
         self.blocks_multiply_const_vxx_0.set_k((self.audio_gain, ))
 
+def check_time(cycle):
+    now = time.localtime().tm_sec
+    if cycle == 'odd':
+        if now < 15:
+            print("Waiting for 15 second mark...")
+            time.sleep(14-now)
+        elif now >= 45:
+            print("Waiting for new minute...")
+            time.sleep(16)
+            check_time('odd')
+        else:
+            print("Waiting for 45 second mark...")
+            time.sleep(45 - now)
+    else:
+        if now < 30:
+            print("Waiting for 30 second mark")
+            time.sleep(29-now)
+        else:
+            print("Waiting for the top of the minute...")
+            time.sleep(59 - now)
 
 def main(top_block_cls=usb_tx_bpf, options=None):
 
     tb = top_block_cls()
-    tb.dump()
-    now = time.localtime().tm_sec
-    if now < 30:
-        print("Waiting for 30 second mark")
-        time.sleep(29-now)
-    else:
-        print("Waiting for the top of the minute...")
-        time.sleep(59 - now)
-    tb.start()
+    check_time(cycle)
     print("Transmitting...")
+    tb.start()
     tb.wait()
+    tb.stop()
 
 if __name__ == '__main__':
     main()

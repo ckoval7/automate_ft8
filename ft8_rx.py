@@ -20,7 +20,12 @@ from optparse import OptionParser
 import ConfigParser
 import osmosdr
 import time
+import sys
 
+try:
+    cycle = sys.argv[1]
+except:
+    cycle = 'even'
 
 class ssb_rx_rec(gr.top_block):
 
@@ -300,29 +305,35 @@ class ssb_rx_rec(gr.top_block):
         self.bb_gain = bb_gain
         self.osmosdr_source_0.set_bb_gain(self.bb_gain, 0)
 
-
-def check_time():
+def check_time(cycle):
     now = time.localtime().tm_sec
-    if now < 15:
-        print("Waiting for 15 second mark...")
-        time.sleep(14-now)
-    elif now >= 45:
-        print("Waiting for new minute...")
-        time.sleep(16)
-        check_time()
+    if cycle == 'odd':
+        if now < 15:
+            print("Waiting for 15 second mark...")
+            time.sleep(14-now)
+        elif now >= 45:
+            print("Waiting for new minute...")
+            time.sleep(16)
+            check_time('odd')
+        else:
+            print("Waiting for 45 second mark...")
+            time.sleep(45 - now)
     else:
-        print("Waiting for 45 second mark...")
-        time.sleep(45 - now)
+        if now < 30:
+            print("Waiting for 30 second mark")
+            time.sleep(29-now)
+        else:
+            print("Waiting for the top of the minute...")
+            time.sleep(59 - now)
 
 def main(top_block_cls=ssb_rx_rec, options=None):
 
     tb = top_block_cls()
-    check_time()
+    check_time(cycle)
     print("Receiving...")
     tb.start()
     time.sleep(14)
     tb.stop()
-    tb.wait()
     tb.wait()
 
 if __name__ == '__main__':
