@@ -24,17 +24,19 @@ snr = ''
 their_msg = ''
 
 def tx():
-    print("Starting TX")
-    os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
-    time.sleep(8)
-    print("Exiting TX")
+    while True:
+        print("Starting TX")
+        os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
+        time.sleep(8)
+        print("Exiting TX")
 
 def rx():
-    print("Starting RX")
-    os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
-    parse_rx()
-    time.sleep(8)
-    print("Exiting RX")
+    while True:
+        print("Starting RX")
+        os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
+        parse_rx()
+        time.sleep(8)
+        print("Exiting RX")
 
 
 class qso_tracker:
@@ -91,6 +93,7 @@ def parse_rx():
     if (rx_my_call == (my_call or 'CQ')
     and qso_tracker.current_call == (their_call or '')
     and not chk_blacklist(their_call)):
+        t.start()
         if re.search("[A-R]{2}\d{2}", their_grid) and qso_tracker.step == 1:
             answer_cq(their_call, my_call, grid)
             responding = True
@@ -127,11 +130,9 @@ def main():
     r = threading.Thread(name='Receive', target=rx)
     t.daemon = True
     r.daemon = True
-    t.start()
+#    t.start()
     r.start()
     raw_input("\n\nPress Enter to Exit: ")
-    r.join()
-    t.join()
     quit()
 
 if __name__== "__main__":
