@@ -23,15 +23,15 @@ their_grid = ''
 snr = ''
 their_msg = ''
 
-def tx():
-    while True:
+def tx(e):
+    while not e.isSet():
         print("Starting TX")
         os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
         time.sleep(8)
         print("Exiting TX")
 
-def rx():
-    while True:
+def rx(e):
+    while not e.isSet():
         print("Starting RX")
         os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
         parse_rx()
@@ -126,13 +126,18 @@ def parse_rx():
             responding = False
 
 def main():
-    t = threading.Thread(name='Transmit', target=tx)
-    r = threading.Thread(name='Receive', target=rx)
+    e = threading.Event()
+    t = threading.Thread(name='Transmit', target=tx, args=(e,))
+    r = threading.Thread(name='Receive', target=rx, args=(e,))
     t.daemon = True
     r.daemon = True
 #    t.start()
     r.start()
-    raw_input("\n\nPress Enter to Exit: ")
+    raw_input("\n\nPress Enter to Exit:\n\n")
+    print("\n\nKilling threads, please wait for TX/RX cycles to complete...\n\n")
+    e.set()
+    t.join
+    r.join
     quit()
 
 if __name__== "__main__":

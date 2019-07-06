@@ -22,18 +22,21 @@ their_call = ''
 their_grid = ''
 snr = ''
 their_msg = ''
+time_to_stop = False
 
-def tx():
+def tx(e):
     global tx_cycle
-    while True:
+    global time_to_stop
+    while not e.isSet():
         print("Starting TX")
         os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
         time.sleep(8)
         print("Exiting TX")
 
-def rx():
+def rx(e):
     global rx_cycle
-    while True:
+    global time_to_stop
+    while not e.isSet():
         print("Starting RX")
         os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
         parse_rx()
@@ -132,15 +135,21 @@ def parse_rx():
 
 def main():
     tx_cq(my_call, my_grid)
-    t = threading.Thread(name='Transmit', target=tx)
-    r = threading.Thread(name='Receive', target=rx)
+    e = threading.Event()
+    t = threading.Thread(name='Transmit', target=tx, args=(e,))
+    r = threading.Thread(name='Receive', target=rx, args=(e,))
     t.daemon = True
     r.daemon = True
     t.start()
     r.start()
+    time_to_stop = False
+    
     raw_input("\n\nPress Enter to Exit: ")
-    #t.join()
-    #r.join()
+    time_to_stop = True
+    e.set()
+    print("Killing threads, plase wait")
+    t.join()
+    r.join()
     quit()
 
 if __name__== "__main__":
