@@ -124,8 +124,8 @@ class ssb_rx_rec(gr.top_block):
         self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.band_pass_filter = filter.fir_filter_ccc(int(rf_samp_rate/if_samp_rate), firdes.complex_band_pass(
         	1, rf_samp_rate, low, high, 500, firdes.WIN_HAMMING, 6.76))
-        self.analog_agc2_xx_0 = analog.agc2_cc(0.1, 50e-6, 0.8, 1.0)
-        self.analog_agc2_xx_0.set_max_gain(1)
+        self.analog_agc2_xx_0 = analog.agc2_cc(0.1, 50e-6, 0.8, 5.0)
+        self.analog_agc2_xx_0.set_max_gain(10)
 
 
 
@@ -330,11 +330,11 @@ def check_time(cycle):
             time.sleep(14-now)
         elif now >= 45:
             print("Waiting for new minute...")
-            time.sleep(16)
+            time.sleep(61-now)
             check_time('odd')
         else:
             print("Waiting for 45 second mark...")
-            time.sleep(45 - now)
+            time.sleep(44 - now)
     else:
         if now < 30:
             print("Waiting for 30 second mark")
@@ -349,7 +349,7 @@ def main(top_block_cls=ssb_rx_rec, options=None):
     check_time(cycle)
     print("Receiving...")
     tb.start()
-    time.sleep(14)
+    time.sleep(14.5)
     tb.stop()
     tb.wait()
 

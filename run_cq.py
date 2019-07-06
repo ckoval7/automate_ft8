@@ -78,13 +78,13 @@ def parse_rx():
     now = datetime.now()
     rx_time = now.strftime("[%m/%d/%Y %H:%M:%S]")
     try:
-        ft8_decode = subprocess.check_output('./ft8decode 300 3000 10 ./ft8rx.wav', shell=True)
+        ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ./ft8rx.wav', shell=True)
         print(ft8_decode)
         qso_list = open('./captures/text_rx.txt',"a+")
         qso_list.write(rx_time+' '+ft8_decode)
         qso_list.close()
         collapsedstring = ' '.join(ft8_decode.split())
-        snr = collapsedstring.split(' ')[0] #The first number is always the SNR
+        snr = collapsedstring.split(' ')[1] #The second number is always the SNR
         #In a properly formatted message this will be the receiver's call sign
         rx_my_call = collapsedstring.split(' ')[6]
         #In a properly formatted message this should always be the senders call sign
