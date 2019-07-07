@@ -63,14 +63,17 @@ def tx_73(their_call, my_call):
     os.system('./ft8encode "'+their_call+' '+my_call+' RR73" 1000 0 0 0 0 1 47')
 
 def chk_blacklist(their_call):
-    blacklist = open('./captures/blacklist.txt',"r+")
-    check_blacklist = blacklist.readlines()
-    blacklist.close()
-    for line in check_blacklist:
-        if their_call in line:
-            return True
-        else:
-            return False
+    try:
+        blacklist = open('./captures/blacklist.txt',"r+")
+        check_blacklist = blacklist.readlines()
+        blacklist.close()
+        for line in check_blacklist:
+            if their_call in line:
+                return True
+            else:
+                return False
+    except:
+        return False
 
 def parse_rx():
     global calling_cq
