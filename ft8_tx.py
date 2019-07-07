@@ -379,7 +379,7 @@ def main(top_block_cls=usb_tx_bpf, options=None):
 
     tb = top_block_cls()
     check_time(cycle)
-    print("Transmitting...")
+    print("\nTransmitting...")
     tb.start()
     tb.wait()
     tb.stop()

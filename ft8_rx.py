@@ -124,8 +124,8 @@ class ssb_rx_rec(gr.top_block):
         self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.band_pass_filter = filter.fir_filter_ccc(int(rf_samp_rate/if_samp_rate), firdes.complex_band_pass(
         	1, rf_samp_rate, low, high, 500, firdes.WIN_HAMMING, 6.76))
-        self.analog_agc2_xx_0 = analog.agc2_cc(0.1, 50e-6, 0.8, 5.0)
-        self.analog_agc2_xx_0.set_max_gain(10)
+        self.analog_agc2_xx_0 = analog.agc2_cc(0.1, 50e-6, 0.8, 1.0)
+        self.analog_agc2_xx_0.set_max_gain(1)
 
 
 
@@ -347,9 +347,9 @@ def main(top_block_cls=ssb_rx_rec, options=None):
 
     tb = top_block_cls()
     check_time(cycle)
-    print("Receiving...")
+    print("\nReceiving...")
     tb.start()
-    time.sleep(14.5)
+    time.sleep(15.2)
     tb.stop()
     tb.wait()
 
