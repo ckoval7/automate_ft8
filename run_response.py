@@ -105,12 +105,9 @@ def parse_rx():
         print('[8]'+their_msg)
     except:
         print("No Statons Calling")
+        ft8_decode = ''
         rx_my_call = ''
 
-    #if (their_call != ''
-    #and rx_my_call == my_call or rx_my_call == 'CQ'
-    #and qso.current_call == their_call or qso.current_call == 'NOCALL'
-    #and not chk_blacklist(their_call)):
     rules = [ft8_decode != '',
             rx_my_call == my_call or 'CQ',
             qso.current_call == their_call or 'NOCALL',
@@ -118,26 +115,35 @@ def parse_rx():
     if all(rules):
         if not t.isAlive():
             t.start()
-        if re.search("[A-R]{2}\d{2}", their_msg) and qso.step == 1:
-            answer_cq(their_call, my_call, my_grid)
-            responding = True
-            retry = 0
-            qso.step = 2
-            qso.current_call = their_call
-        elif re.search("[R][+|-]\d{2}", their_msg) and qso.step == 2:
-            tx_report(their_call, my_call, snr)
-            responding = True
-            retry = 0
-            qso.step = 3
-        elif their_msg == "RR73" and qso.step == 3:
-            tx_73(my_call, their_call)
-            responding = False
-            retry = 0
-            qso.step = 1
-            blacklist = open('./captures/blacklist.txt',"a+")
-            blacklist.write(qso.current_call)
-            blacklist.close()
-            qso.current_call = 'NOCALL'
+        if their_msg != 'RR73' and re.search("[A-R]{2}\d{2}", their_msg):# and qso.step == 1:
+            if qso.step == 1:
+                answer_cq(their_call, my_call, my_grid)
+                responding = True
+                retry = 0
+                qso.step = 2
+                qso.current_call = their_call
+            else:
+                print("Responding again...")
+        elif re.search("[R][+|-]\d{2}", their_msg):# and qso.step == 2:
+            if qso.step == 2:
+                tx_report(their_call, my_call, snr)
+                responding = True
+                retry = 0
+                qso.step = 3
+            else:
+                print("Resending Report")
+        elif their_msg == "RR73":# and qso.step == 3:
+            if qso.step == 3:
+                tx_73(my_call, their_call)
+                responding = False
+                retry = 0
+                qso.step = 1
+                blacklist = open('./captures/blacklist.txt',"a+")
+                blacklist.write(qso.current_call)
+                blacklist.close()
+                qso.current_call = 'NOCALL'
+            else:
+                print("Resending 73...")
     else:
       #repeat last action, up to 4 times
         if responding and retry < 4:

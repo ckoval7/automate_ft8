@@ -100,6 +100,7 @@ def parse_rx():
         their_msg = collapsedstring.split(' ')[8]
     except:
         print("No Reply")
+        ft8_deocde = ''
         rx_my_call = ''
 
     rules = [ft8_decode != '',
@@ -107,20 +108,23 @@ def parse_rx():
             qso.current_call == their_call or 'NOCALL',
             not chk_blacklist(their_call)]
     if all(rules):
-#    if (rx_my_call == my_call
-#    and qso.current_call == their_call or qso.current_call == ''
-#    and not chk_blacklist(their_call)):
-        if re.search("[A-R]{2}\d{2}", their_msg) and qso.step == 1:
-            tx_report(their_call, my_call, snr)
-            calling_cq = False
-            retry = 0
-            qso.step = 2
-            qso.current_call = their_call
-        elif re.search("[R][+|-]\d{2}", their_msg) and qso.step == 2:
-            tx_73(their_call, my_call)
-            calling_cq = False
-            retry = 0
-            qso.step = 3
+        if re.search("[A-R]{2}\d{2}", their_msg):# and qso.step == 1:
+            if qso.step == 1:
+                tx_report(their_call, my_call, snr)
+                calling_cq = False
+                retry = 0
+                qso.step = 2
+                qso.current_call = their_call
+            else:
+                print("Responding again...")
+        elif re.search("[R][+|-]\d{2}", their_msg):# and qso.step == 2:
+            if qso.step == 2
+                tx_73(their_call, my_call)
+                calling_cq = False
+                retry = 0
+                qso.step = 3
+            else:
+                print("Resending Report...")
         elif their_msg == "73" and qso.step == 3:
             tx_cq(my_call, their_call)
             calling_cq = True
