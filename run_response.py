@@ -40,9 +40,9 @@ def rx(e):
 
 
 class qso_tracker:
-    def __init__(self,current_call,step,max_step):
-        self.current_call = ''
-        self.step = 1
+    def __init__(self,current_call,step):
+        self.current_call = current_call
+        self.step = step
         self.max_step = 4
 
 def answer_cq(their_call, my_call, my_grid):
@@ -58,62 +58,76 @@ def tx_73(their_call, my_call):
     os.system('./ft8encode "'+their_call+' '+my_call+' 73" 1000 0 0 0 0 1 47')
 
 def chk_blacklist(their_call):
-    blacklist = open('./captures/blacklist.txt',"r+")
-    check_blacklist = blacklist.readlines()
-    blacklist.close()
-    for line in check_blacklist:
-        if their_call in line:
-            return True
-        else:
-            return False
+    try:
+        blacklist = open('./captures/blacklist.txt',"r+")
+        check_blacklist = blacklist.readlines()
+        blacklist.close()
+        for line in check_blacklist:
+            if their_call in line:
+                return True
+            else:
+                return False
+    except:
+        return False
 
 def parse_rx():
     global responding
     global retry
+    global qso
+    global their_call
+    global snr
+    global their_msg
+
     now = datetime.now()
     rx_time = now.strftime("[%m/%d/%Y %H:%M:%S]")
     try:
         ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ./ft8rx.wav', shell=True)
         print(ft8_decode)
-        qso_list = open('./captures/text_rx.txt',"a+")
-        qso_list.write(rx_time+' '+ft8_decode)
-        qso_list.close()
+        if ft8_decode != '':
+            qso_list = open('./captures/text_rx.txt',"a+")
+            qso_list.write(rx_time+' '+ft8_decode)
+            qso_list.close()
         collapsedstring = ' '.join(ft8_decode.split())
         snr = collapsedstring.split(' ')[1] #The second number is always the SNR
+        print('[1]'+snr)
         #In a properly formatted message this will be the receiver's call sign
         rx_my_call = collapsedstring.split(' ')[6]
+        print('[6]'+rx_my_call)
         #In a properly formatted message this should always be the senders call sign
         their_call = collapsedstring.split(' ')[7]
+        print('[7]'+their_call)
         #This position will either be a grid square (e.g. FM19), a signal report (e.g. -10 or R-10), "RR73", or "73", which closes the QSO
         their_msg = collapsedstring.split(' ')[8]
+        print('[8]'+their_msg)
     except:
         print("No Statons Calling")
         rx_my_call = ''
 
-    if (rx_my_call == (my_call or 'CQ')
-    and qso_tracker.current_call == (their_call or '')
+    if (rx_my_call == my_call or 'CQ'
+    and qso.current_call == their_call or 'NOCALL'
     and not chk_blacklist(their_call)):
         t.start()
-        if re.search("[A-R]{2}\d{2}", their_grid) and qso_tracker.step == 1:
+        print("\nTheir Call: "+their_call)
+        if re.search("[A-R]{2}\d{2}", their_grid) and qso.step == 1:
             answer_cq(their_call, my_call, grid)
             responding = True
             retry = 0
-            qso_tracker.step = 2
-            qso_tracker.current_call = their_call
-        elif re.search("[R][+|-]\d{2}", their_msg) and qso_tracker.step == 2:
+            qso.step = 2
+            qso.current_call = their_call
+        elif re.search("[R][+|-]\d{2}", their_msg) and qso.step == 2:
             tx_report(their_call, my_call, snr)
             responding = True
             retry = 0
-            qso_tracker.step = 3
-        elif their_msg == "RR73" and qso_tracker.step == 3:
+            qso.step = 3
+        elif their_msg == "RR73" and qso.step == 3:
             tx_73(my_call, their_call)
             responding = False
             retry = 0
-            qso_tracker.step = 1
+            qso.step = 1
             blacklist = open('./captures/blacklist.txt',"a+")
-            blacklist.write(qso_tracker.current_call)
+            blacklist.write(qso.current_call)
             blacklist.close()
-            qso_tracker.current_call = ''
+            qso.current_call = 'NOCALL'
     else:
       #repeat last action, up to 4 times
         if responding and retry < 4:
@@ -140,5 +154,6 @@ def main():
     r.join
     quit()
 
+qso = qso_tracker('NOCALL',1)
 if __name__== "__main__":
     main()

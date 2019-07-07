@@ -45,9 +45,9 @@ def rx(e):
 
 
 class qso_tracker:
-    def __init__(self,current_call,step,max_step):
-        self.current_call = ''
-        self.step = 1
+    def __init__(self,current_call,step):
+        self.current_call = current_call
+        self.step = step
         self.max_step = 3
 
 def tx_cq(my_call, my_grid):
@@ -75,6 +75,10 @@ def chk_blacklist(their_call):
 def parse_rx():
     global calling_cq
     global retry
+    global rx_my_call
+    global their_call
+    global their_msg
+    global qso
     now = datetime.now()
     rx_time = now.strftime("[%m/%d/%Y %H:%M:%S]")
     try:
@@ -96,29 +100,29 @@ def parse_rx():
         rx_my_call = ''
 
     if (rx_my_call == my_call
-    and qso_tracker.current_call == (their_call or '')
+    and qso.current_call == their_call or ''
     and not chk_blacklist(their_call)):
-        if re.search("[A-R]{2}\d{2}", their_grid) and qso_tracker.step == 1:
+        if re.search("[A-R]{2}\d{2}", their_grid) and qso.step == 1:
             tx_report(their_call, my_call, snr)
             calling_cq = False
             retry = 0
-            qso_tracker.step = 2
-            qso_tracker.current_call = their_call
-        elif re.search("[R][+|-]\d{2}", their_msg) and qso_tracker.step == 2:
+            qso.step = 2
+            qso.current_call = their_call
+        elif re.search("[R][+|-]\d{2}", their_msg) and qso.step == 2:
             tx_73(their_call, my_call)
             calling_cq = False
             retry = 0
-            qso_tracker.step = 3
-        elif their_msg == "73" and qso_tracker.step == 3:
+            qso.step = 3
+        elif their_msg == "73" and qso.step == 3:
             tx_cq(my_call, their_call)
             calling_cq = True
             retry = 0
-            qso_tracker.step = 1
+            qso.step = 1
             blacklist = open('./captures/blacklist.txt',"a+")
-            blacklist.write(qso_tracker.current_call)
+            blacklist.write(qso.current_call)
             blacklist.close()
             #award points
-            qso_tracker.current_call = ''
+            qso.current_call = ''
         else:
             tx_cq(my_call, my_grid)
     else:
@@ -152,5 +156,6 @@ def main():
     r.join()
     quit()
 
+qso = qso_tracker('',1)
 if __name__== "__main__":
     main()
