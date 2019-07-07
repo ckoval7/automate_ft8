@@ -99,10 +99,15 @@ def parse_rx():
         print("No Reply")
         rx_my_call = ''
 
-    if (rx_my_call == my_call
-    and qso.current_call == their_call or ''
-    and not chk_blacklist(their_call)):
-        if re.search("[A-R]{2}\d{2}", their_grid) and qso.step == 1:
+    rules = [ft8_decode != '',
+            rx_my_call == my_call or 'CQ',
+            qso.current_call == their_call or 'NOCALL',
+            not chk_blacklist(their_call)]
+    if all(rules):
+#    if (rx_my_call == my_call
+#    and qso.current_call == their_call or qso.current_call == ''
+#    and not chk_blacklist(their_call)):
+        if re.search("[A-R]{2}\d{2}", their_msg) and qso.step == 1:
             tx_report(their_call, my_call, snr)
             calling_cq = False
             retry = 0

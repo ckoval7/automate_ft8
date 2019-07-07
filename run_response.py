@@ -47,15 +47,18 @@ class qso_tracker:
 
 def answer_cq(their_call, my_call, my_grid):
     os.system('./ft8encode "'+their_call+' '+my_call+' '+my_grid+'" 1000 0 0 0 0 1 47')
+    print("\nAnswering CQ")
 
 def tx_report(their_call, my_call, snr):
     if int(snr) > 0:      #Add + if the number is positive
         os.system('./ft8encode "'+their_call+' '+my_call+' R+'+str(snr).zfill(2)+'" 1000 0 0 0 0 1 47')
     else:
         os.system('./ft8encode "'+their_call+' '+my_call+' R'+str(snr).zfill(2)+'" 1000 0 0 0 0 1 47')
+    print("\nSending Report")
 
 def tx_73(their_call, my_call):
     os.system('./ft8encode "'+their_call+' '+my_call+' 73" 1000 0 0 0 0 1 47')
+    print("\nSending 73")
 
 def chk_blacklist(their_call):
     try:
@@ -77,6 +80,7 @@ def parse_rx():
     global their_call
     global snr
     global their_msg
+    global t
 
     now = datetime.now()
     rx_time = now.strftime("[%m/%d/%Y %H:%M:%S]")
@@ -103,13 +107,19 @@ def parse_rx():
         print("No Statons Calling")
         rx_my_call = ''
 
-    if (rx_my_call == my_call or 'CQ'
-    and qso.current_call == their_call or 'NOCALL'
-    and not chk_blacklist(their_call)):
-        t.start()
-        print("\nTheir Call: "+their_call)
-        if re.search("[A-R]{2}\d{2}", their_grid) and qso.step == 1:
-            answer_cq(their_call, my_call, grid)
+    #if (their_call != ''
+    #and rx_my_call == my_call or rx_my_call == 'CQ'
+    #and qso.current_call == their_call or qso.current_call == 'NOCALL'
+    #and not chk_blacklist(their_call)):
+    rules = [ft8_decode != '',
+            rx_my_call == my_call or 'CQ',
+            qso.current_call == their_call or 'NOCALL',
+            not chk_blacklist(their_call)]
+    if all(rules):
+        if not t.isAlive():
+            t.start()
+        if re.search("[A-R]{2}\d{2}", their_msg) and qso.step == 1:
+            answer_cq(their_call, my_call, my_grid)
             responding = True
             retry = 0
             qso.step = 2
@@ -135,11 +145,13 @@ def parse_rx():
         elif responding and retry >= 4:
             retry = 0
             responding = False
+            t.join()
         else:
             print("Listening...")
             responding = False
 
 def main():
+    global t
     e = threading.Event()
     t = threading.Thread(name='Transmit', target=tx, args=(e,))
     r = threading.Thread(name='Receive', target=rx, args=(e,))
