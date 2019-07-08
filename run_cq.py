@@ -48,6 +48,7 @@ class qso_tracker:
         self.current_call = current_call
         self.step = step
         self.max_step = 3
+        self.reply_attempt = 0
 
 def tx_cq(my_call, my_grid):
     os.system('./ft8encode "CQ '+my_call+' '+my_grid+'" 1000 0 0 0 0 1 47')
@@ -106,8 +107,10 @@ def parse_rx():
     rules = [ft8_decode != '',
             rx_my_call == my_call,
             qso.current_call == their_call or 'NOCALL',
-            not chk_blacklist(their_call)]
+            not chk_blacklist(their_call),
+            qso.reply_attempt < 9]
     if all(rules):
+        print("Reply Attempt Number: "+str(qso.reply_attempt+1))
         if re.search("[A-R]{2}\d{2}", their_msg):# and qso.step == 1:
             if qso.step == 1:
                 tx_report(their_call, my_call, snr)
@@ -115,16 +118,20 @@ def parse_rx():
                 retry = 0
                 qso.step = 2
                 qso.current_call = their_call
+                qso.reply_attempt = 0
             else:
                 print("Responding again...")
+                qso.reply_attempt += 1
         elif re.search("[R][+|-]\d{2}", their_msg):# and qso.step == 2:
             if qso.step == 2:
                 tx_73(their_call, my_call)
                 calling_cq = False
                 retry = 0
                 qso.step = 3
+                qso.reply_attempt = 0
             else:
                 print("Resending Report...")
+                qso.reply_attempt += 1
         elif their_msg == "73" and qso.step == 3:
             tx_cq(my_call, my_grid)
             calling_cq = True
@@ -135,16 +142,23 @@ def parse_rx():
             blacklist.close()
             #award points
             qso.current_call = 'NOCALL'
-        else:
-            tx_cq(my_call, my_grid)
+            qso.reply_attempt = 0
+#        else:
+#            tx_cq(my_call, my_grid)
+#            calling_cq = True
+#            qso.current_call = 'NOCALL'
+#            qso.step = 1
+        
     else:
       #repeat last action, up to 4 times if not cq
         if not calling_cq and retry < 4:
             retry += 1
+            qso.reply_attempt += 1
         elif not calling_cq and retry >= 4:
             tx_cq(my_call, my_grid)
             retry = 0
             calling_cq = True
+            qso.reply_attempt = 0
         else:
             print("Calling CQ")
             calling_cq = True

@@ -136,7 +136,7 @@ def parse_rx():
                 print("Resending Report")
         elif their_msg == "RR73":# and qso.step == 3:
             if qso.step == 3:
-                tx_73(my_call, their_call)
+                tx_73(their_call, my_call)
                 responding = False
                 retry = 0
                 qso.step = 1
