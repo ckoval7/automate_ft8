@@ -22,7 +22,6 @@ their_call = ''
 their_grid = ''
 snr = ''
 their_msg = ''
-time_to_stop = False
 
 def tx(e):
     global tx_cycle
@@ -87,9 +86,10 @@ def parse_rx():
     try:
         ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ./ft8rx.wav', shell=True)
         print(ft8_decode)
-        qso_list = open('./captures/text_rx.txt',"a+")
-        qso_list.write(rx_time+' '+ft8_decode)
-        qso_list.close()
+        if ft8_decode != '':
+            qso_list = open('./captures/text_rx.txt',"a+")
+            qso_list.write(rx_time+' '+ft8_decode)
+            qso_list.close()
         collapsedstring = ' '.join(ft8_decode.split())
         snr = collapsedstring.split(' ')[1] #The second number is always the SNR
         #In a properly formatted message this will be the receiver's call sign
@@ -105,7 +105,7 @@ def parse_rx():
 
     rules = [ft8_decode != '',
             rx_my_call == my_call,
-            qso.current_call == their_call or '',
+            qso.current_call == their_call or 'NOCALL',
             not chk_blacklist(their_call)]
     if all(rules):
         if re.search("[A-R]{2}\d{2}", their_msg):# and qso.step == 1:
@@ -134,7 +134,7 @@ def parse_rx():
             blacklist.write(qso.current_call)
             blacklist.close()
             #award points
-            qso.current_call = ''
+            qso.current_call = 'NOCALL'
         else:
             tx_cq(my_call, my_grid)
     else:
@@ -158,16 +158,14 @@ def main():
     r.daemon = True
     t.start()
     r.start()
-    time_to_stop = False
     
     raw_input("\n\nPress Enter to Exit: ")
-    time_to_stop = True
     e.set()
     print("Killing threads, plase wait")
     t.join()
     r.join()
     quit()
 
-qso = qso_tracker('',1)
+qso = qso_tracker('NOCALL',1)
 if __name__== "__main__":
     main()
