@@ -1,8 +1,8 @@
 <h2>Simple Automated FT8 Tool</h2>
 <h3>Software Requirements:</h3>
 This project depends on the gnuradio libraries as well as gr-osmosdr.<br>
-<a>https://github.com/gnuradio/gnuradio</a><br>
-<a>https://github.com/osmocom/gr-osmosdr</a>
+https://github.com/gnuradio/gnuradio<br>
+https://github.com/osmocom/gr-osmosdr
 <br><br>
 ft8encode and ft8decode were compiled from wsjtx Fortran source code.<br>
 https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/
