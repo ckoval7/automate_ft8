@@ -131,7 +131,7 @@ def parse_rx():
             retry = 0
             qso.step = 1
             blacklist = open('./captures/blacklist.txt',"a+")
-            blacklist.write("\n"+qso.current_call)
+            blacklist.write(qso.current_call+"\n")
             blacklist.close()
             #award points
             qso.current_call = 'NOCALL'

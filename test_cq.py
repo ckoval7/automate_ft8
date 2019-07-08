@@ -133,7 +133,7 @@ def parse_rx():
             else:
                 print("Resending Report...")
         elif their_msg == "73" and qso.step == 3:
-            tx_cq(my_call, their_call)
+            tx_cq(my_call, my_grid)
             print("Received 73 and calling CQ")
             calling_cq = True
             retry = 0
@@ -174,6 +174,6 @@ def main():
     r.join()
     quit()
 
-qso = qso_tracker('NOCALL',3)
+qso = qso_tracker('K3CPK',3)
 if __name__== "__main__":
     main()
