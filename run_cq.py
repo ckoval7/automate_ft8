@@ -104,7 +104,7 @@ def parse_rx():
         rx_my_call = ''
 
     rules = [ft8_decode != '',
-            rx_my_call == my_call or 'CQ',
+            rx_my_call == my_call,
             qso.current_call == their_call or '',
             not chk_blacklist(their_call)]
     if all(rules):
