@@ -118,7 +118,7 @@ def parse_rx():
             else:
                 print("Responding again...")
         elif re.search("[R][+|-]\d{2}", their_msg):# and qso.step == 2:
-            if qso.step == 2
+            if qso.step == 2:
                 tx_73(their_call, my_call)
                 calling_cq = False
                 retry = 0
