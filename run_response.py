@@ -24,14 +24,14 @@ snr = ''
 their_msg = ''
 
 def tx(e):
-    while not e.isSet():
+    while not stop_tx.isSet():
         print("Starting TX")
         os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
         time.sleep(8)
         print("Exiting TX")
 
 def rx(e):
-    while not e.isSet():
+    while not stop_rx.isSet():
         print("Starting RX")
         os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
         parse_rx()
@@ -80,6 +80,8 @@ def parse_rx():
     global their_call
     global snr
     global their_msg
+    global stop_rx
+    global stop_tx
     global t
 
     now = datetime.now()
@@ -143,7 +145,8 @@ def parse_rx():
                 blacklist.close()
                 qso.current_call = 'NOCALL'
             else:
-                print("Resending 73...")
+                stop_tx.set()
+                t.join()
     else:
       #repeat last action, up to 4 times
         if responding and retry < 4:
@@ -151,14 +154,19 @@ def parse_rx():
         elif responding and retry >= 4:
             retry = 0
             responding = False
+            stop_tx.set()
             t.join()
         else:
             print("Listening...")
             responding = False
+            if t.isAlive():
+                stop_tx.set()
+                t.join()
 
 def main():
     global t
-    e = threading.Event()
+    global stop_rx = threading.Event()
+    global stop_tx = threading.Event()
     t = threading.Thread(name='Transmit', target=tx, args=(e,))
     r = threading.Thread(name='Receive', target=rx, args=(e,))
     t.daemon = True
@@ -167,7 +175,8 @@ def main():
     r.start()
     raw_input("\n\nPress Enter to Exit:\n\n")
     print("\n\nKilling threads, please wait for TX/RX cycles to complete...\n\n")
-    e.set()
+    stop_rx.set()
+    stop_tx.set()
     t.join
     r.join
     quit()

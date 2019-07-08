@@ -126,7 +126,7 @@ def parse_rx():
             else:
                 print("Resending Report...")
         elif their_msg == "73" and qso.step == 3:
-            tx_cq(my_call, their_call)
+            tx_cq(my_call, my_grid)
             calling_cq = True
             retry = 0
             qso.step = 1
