@@ -105,7 +105,7 @@ def parse_rx():
 
     rules = [ft8_decode != '',
             rx_my_call == my_call or 'CQ',
-            qso.current_call == their_call or 'NOCALL',
+            qso.current_call == their_call or '',
             not chk_blacklist(their_call)]
     if all(rules):
         if re.search("[A-R]{2}\d{2}", their_msg):# and qso.step == 1:

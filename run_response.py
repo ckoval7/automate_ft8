@@ -124,7 +124,7 @@ def parse_rx():
                 qso.current_call = their_call
             else:
                 print("Responding again...")
-        elif re.search("[R][+|-]\d{2}", their_msg):# and qso.step == 2:
+        elif re.search("[+|-]\d{2}", their_msg):# and qso.step == 2:
             if qso.step == 2:
                 tx_report(their_call, my_call, snr)
                 responding = True
