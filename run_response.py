@@ -23,14 +23,14 @@ their_grid = ''
 snr = ''
 their_msg = ''
 
-def tx(e):
+def tx(strop_tx):
     while not stop_tx.isSet():
         print("Starting TX")
         os.system('python ft8_tx.py '+tx_cycle)# 2> /dev/null')
         time.sleep(8)
         print("Exiting TX")
 
-def rx(e):
+def rx(stop_rx):
     while not stop_rx.isSet():
         print("Starting RX")
         os.system('python ft8_rx.py '+rx_cycle)# 2> /dev/null')
@@ -141,7 +141,7 @@ def parse_rx():
                 retry = 0
                 qso.step = 1
                 blacklist = open('./captures/blacklist.txt',"a+")
-                blacklist.write(qso.current_call)
+                blacklist.write("\n"+qso.current_call)
                 blacklist.close()
                 qso.current_call = 'NOCALL'
             else:
@@ -165,10 +165,12 @@ def parse_rx():
 
 def main():
     global t
-    global stop_rx = threading.Event()
-    global stop_tx = threading.Event()
-    t = threading.Thread(name='Transmit', target=tx, args=(e,))
-    r = threading.Thread(name='Receive', target=rx, args=(e,))
+    global stop_rx
+    global stop_tx
+    stop_rx = threading.Event()
+    stop_tx = threading.Event()
+    t = threading.Thread(name='Transmit', target=tx, args=(stop_tx,))
+    r = threading.Thread(name='Receive', target=rx, args=(stop_rx,))
     t.daemon = True
     r.daemon = True
 #    t.start()

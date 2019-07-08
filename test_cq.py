@@ -107,8 +107,8 @@ def parse_rx():
     print("rx_my_call: "+rx_my_call)
     print("my_call: "+my_call)
     print("qso.current_call: "+qso.current_call)
-    print(qso.current_call == None)
     print("their_call: "+their_call)
+    print("their_msg: "+their_msg)
     print("chk_blacklist: "+str(chk_blacklist(their_call)))
     rules = [ft8_decode != '',
             rx_my_call == my_call,
@@ -134,6 +134,7 @@ def parse_rx():
                 print("Resending Report...")
         elif their_msg == "73" and qso.step == 3:
             tx_cq(my_call, their_call)
+            print("Received 73 and calling CQ")
             calling_cq = True
             retry = 0
             qso.step = 1
@@ -173,6 +174,6 @@ def main():
     r.join()
     quit()
 
-qso = qso_tracker('NOCALL',1)
+qso = qso_tracker('NOCALL',3)
 if __name__== "__main__":
     main()
