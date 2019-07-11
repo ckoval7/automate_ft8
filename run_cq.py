@@ -92,7 +92,7 @@ def parse_rx():
     replies = []
     try:
         ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ./ft8rx.wav', shell=True)
-        print("\nOriginal:\n" + ft8_decode)
+        print("\nReceived Messages:\n" + ft8_decode)
         if ft8_decode != '':
             qso_list = open('./captures/text_rx.txt', "a+")
             qso_list.write(rx_time + ' ' + ft8_decode)
@@ -118,7 +118,8 @@ def parse_rx():
         rx_my_call = chosen_reply[6]
         # In a properly formatted message this should always be the senders call sign
         their_call = chosen_reply[7]
-        # This position will either be a grid square (e.g. FM19), a signal report (e.g. -10 or R-10), "RR73", or "73", which closes the QSO
+        # This position will either be a grid square (e.g. FM19), a signal report (e.g. -10 or R-10),
+        # "RR73", or "73", which closes the QSO
         their_msg = chosen_reply[8]
         print("\nTheir SNR: " + snr)
         print("They're calling: " + rx_my_call)
