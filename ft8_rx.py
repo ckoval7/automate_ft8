@@ -126,6 +126,7 @@ class ssb_rx_rec(gr.top_block):
         	1, rf_samp_rate, low, high, 500, firdes.WIN_HAMMING, 6.76))
         self.analog_agc2_xx_0 = analog.agc2_cc(0.1, 50e-6, 0.8, 1.0)
         self.analog_agc2_xx_0.set_max_gain(1)
+        self.head = blocks.head(gr.sizeof_float*1, 12000*15)
 
 
 
@@ -134,7 +135,8 @@ class ssb_rx_rec(gr.top_block):
         ##################################################
         self.connect((self.analog_agc2_xx_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.band_pass_filter, 0), (self.analog_agc2_xx_0, 0))
-        self.connect((self.blocks_complex_to_real_0, 0), (self.blocks_wavfile_sink_0, 0))
+        self.connect((self.blocks_complex_to_real_0, 0), (self.head, 0))
+        self.connect((self.head, 0), (self.blocks_wavfile_sink_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.band_pass_filter, 0))
         self.connect((self.osmosdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_complex_to_real_0, 0))
@@ -349,8 +351,8 @@ def main(top_block_cls=ssb_rx_rec, options=None):
     check_time(cycle)
     print("\nReceiving...")
     tb.start()
-    time.sleep(15.2)
-    tb.stop()
+    #time.sleep(15.2)
+    #tb.stop()
     tb.wait()
 
 
