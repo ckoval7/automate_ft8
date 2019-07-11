@@ -91,10 +91,10 @@ def parse_rx():
     rx_time = now.strftime("[%m/%d/%Y %H:%M:%S]")
     replies = []
     try:
-        ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ../combined.wav', shell=True)
+        ft8_decode = subprocess.check_output('./ft8decode 300 3000 3 ./ft8rx.wav', shell=True)
         print("\nOriginal:\n" + ft8_decode)
         if ft8_decode != '':
-            qso_list = open('./captures/text_testing.txt', "a+")
+            qso_list = open('./captures/text_rx.txt', "a+")
             qso_list.write(rx_time + ' ' + ft8_decode)
             qso_list.close()
         ft8_decode_lines = ft8_decode.splitlines()
@@ -111,7 +111,7 @@ def parse_rx():
                 replies.append(collapsedstring.split(' '))
         # print(replies)
         chosen_reply = max(replies, key=lambda x: x[1])
-    
+
         print(chosen_reply)
         snr = chosen_reply[1]  # The second number is always the SNR
         # In a properly formatted message this will be the receiver's call sign
