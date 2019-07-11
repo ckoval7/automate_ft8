@@ -1,6 +1,7 @@
 #ignore
 captures/*
 old_files/
+.idea/
 *.wav
 *.pyc
 *.bak
