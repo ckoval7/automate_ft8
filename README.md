@@ -20,7 +20,7 @@ You'll also need an additional SDR as a receiver such as an RTL-SDR.<br>
 </ol>
 <ul>
    <li>If you are calling CQ start<br>
-   <code>python run_cq.py</code>.</li>
+   <code>python run_cq.py</code></li>
    <li>If you are resonding to a CQ, start<br>
    <code>python run_response.py</code></li>
 </ul>
