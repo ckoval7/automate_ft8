@@ -19,6 +19,7 @@ from optparse import OptionParser
 import ConfigParser
 import osmosdr
 import time
+from datetime import datetime
 import sys
 
 try:
@@ -355,14 +356,15 @@ class usb_tx_bpf(gr.top_block):
         self.blocks_multiply_const_vxx_0.set_k((self.audio_gain, ))
 
 def check_time(cycle):
-    now = time.localtime().tm_sec
+    #now = time.localtime().tm_sec
+    now = float(datetime.now().strftime('%S.%f'))
     if cycle == 'odd':
         if now < 15:
             print("Waiting for 15 second mark...")
-            time.sleep(14-now)
+            time.sleep(15-now)
         elif now >= 45:
             print("Waiting for new minute...")
-            time.sleep(16)
+            time.sleep(61-now)
             check_time('odd')
         else:
             print("Waiting for 45 second mark...")
@@ -370,10 +372,10 @@ def check_time(cycle):
     else:
         if now < 30:
             print("Waiting for 30 second mark")
-            time.sleep(29-now)
+            time.sleep(30-now)
         else:
             print("Waiting for the top of the minute...")
-            time.sleep(59 - now)
+            time.sleep(60 - now)
 
 def main(top_block_cls=usb_tx_bpf, options=None):
 
