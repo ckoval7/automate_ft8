@@ -204,13 +204,13 @@ def main():
     r = threading.Thread(name='Receive', target=rx, args=(stop_rx,))
     t.daemon = True
     r.daemon = True
-    #    t.start()
     r.start()
     raw_input("\n\nPress Enter to Exit:\n\n")
     print("\n\nKilling threads, please wait for TX/RX cycles to complete...\n\n")
     stop_rx.set()
     stop_tx.set()
-    t.join()
+    if t.isAlive():
+        t.join()
     r.join()
     quit()
 
