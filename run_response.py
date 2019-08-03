@@ -101,6 +101,7 @@ def parse_rx():
             qso_list = open('./captures/text_rx.txt', "a+")
             qso_list.write(rx_time + ' ' + ft8_decode)
             qso_list.close()
+        ft8_decode_lines = ft8_decode.splitlines()
         for line in range(len(ft8_decode_lines)):
             if responding:
                 if qso.current_call in ft8_decode_lines[line]:
