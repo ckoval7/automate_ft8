@@ -71,7 +71,8 @@ class usb_tx_bpf(gr.top_block):
         self._rf_gain_config = ConfigParser.ConfigParser()
         self._rf_gain_config.read(file_name)
         try: rf_gain = self._rf_gain_config.getfloat('tx', 'tx_rf_gain')
-        except: rf_gain = 10
+        except: rf_gain = 60
+        print("RF Gain: " + str(rf_gain))
         self.rf_gain = rf_gain
         self._offset_config = ConfigParser.ConfigParser()
         self._offset_config.read(file_name)
@@ -131,6 +132,8 @@ class usb_tx_bpf(gr.top_block):
         self.osmosdr_sink_0.set_bandwidth(0, 0)
 
         self.blocks_wavfile_source_0 = blocks.wavfile_source(wav_file, False)
+        self.band_pass_filter_af = filter.fir_filter_fff(1, firdes.band_pass(
+                1, wav_samp_rate, 300, 2700, 150, firdes.WIN_HAMMING, 6.76))
         self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff((audio_gain, ))
@@ -154,7 +157,8 @@ class usb_tx_bpf(gr.top_block):
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.blocks_multiply_xx_0, 0), (self.band_pass_filter_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.rational_resampler_xxx_0_0, 0))
-        self.connect((self.blocks_wavfile_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_wavfile_source_0, 0), (self.band_pass_filter_af, 0))
+        self.connect((self.band_pass_filter_af, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_float_to_complex_0, 1))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.osmosdr_sink_0, 0))
 
@@ -372,10 +376,10 @@ def check_time(cycle):
     else:
         if now < 30:
             print("Waiting for 30 second mark")
-            time.sleep(30-now)
+            time.sleep((30-0.4)-now)
         else:
             print("Waiting for the top of the minute...")
-            time.sleep(60 - now)
+            time.sleep((60-0.4) - now)
 
 def main(top_block_cls=usb_tx_bpf, options=None):
 
